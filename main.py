@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import ImplementProccess as proccess
-
+import time
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -785,7 +785,7 @@ class Ui_MainWindow(object):
         self.line.setObjectName("line")
         self.gridLayout_4.addWidget(self.line, 1, 4, 1, 4)
         self.progressBarEn = QtWidgets.QProgressBar(self.tab_encrypt)
-        self.progressBarEn.setProperty("value", 96)
+        self.progressBarEn.setProperty("value", 0)
         self.progressBarEn.setObjectName("progressBarEn")
         self.gridLayout_4.addWidget(self.progressBarEn, 12, 4, 1, 4)
         self.label_4 = QtWidgets.QLabel(self.tab_encrypt)
@@ -1082,7 +1082,7 @@ class Ui_MainWindow(object):
         self.label_13.setObjectName("label_13")
         self.gridLayout.addWidget(self.label_13, 3, 1, 1, 2)
         self.progressBarDe = QtWidgets.QProgressBar(self.tab_decrypt)
-        self.progressBarDe.setProperty("value", 85)
+        self.progressBarDe.setProperty("value", 0)
         self.progressBarDe.setObjectName("progressBarDe")
         self.gridLayout.addWidget(self.progressBarDe, 10, 0, 1, 4)
         self.lineEditDeSource = QtWidgets.QLineEdit(self.tab_decrypt)
@@ -1425,7 +1425,7 @@ class Ui_MainWindow(object):
         self.pushButtonEnFolder.setText(_translate("MainWindow", "Select Folder"))
         self.label_7.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Note:</span> If you do not have a key, you can use the \'KEY GENERATOR\' to generate a new key!</p><p>The key is required for the <span style=\" font-weight:600;\">RSA</span> algorithm! (<span style=\" font-weight:600;\">RSA</span> uses asymmetric keys (Public Key: *.pubk), <span style=\" font-weight:600;\">AES</span> and <span style=\" font-weight:600;\">TripleDES</span> use symmetric keys!)</p></body></html>"))
         self.pushButtonEnCreate.setText(_translate("MainWindow", "CREATE KEY!"))
-        self.label_6.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Note:</span> Use select folder if you want to encrypt all files in the folder! </p><p><span style=\" font-weight:600;\">Note:</span> Only encrypt files in current directory! Do not encrypt files in subfolders.</p></body></html>"))
+        self.label_6.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Note: </span>With algorithm RSA, File must not be too large!(&lt; 1MB). Use select folder if you want to encrypt all files in the folder! </p><p><span style=\" font-weight:600;\">Note:</span> Only encrypt files in current directory! Do not encrypt files in subfolders.</p></body></html>"))
         self.radioEnAES.setText(_translate("MainWindow", "AES"))
         self.checkBoxEnSource.setText(_translate("MainWindow", "Use Source folder as Output folder!"))
         self.pushButtonEnKey.setText(_translate("MainWindow", "Import Key"))
@@ -1483,9 +1483,13 @@ class Ui_MainWindow(object):
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionRead_me.setText(_translate("MainWindow", "Read me!"))
         self.actionImport_Key.setText(_translate("MainWindow", "Import Key"))
-        self.comboBoxAsym.addItems(['2048','3072 (Recommended)','4096','8192'])
+        self.comboBoxAsym.addItems(['1024','2048 (Recommended)','3072','4096'])
         self.actionRead_me.triggered.connect(self.readMeMessage)
 
+        #MENU FILE
+        self.actionOpen_File.triggered.connect(self.getPathFileMenu)
+        self.actionOpen_Folder.triggered.connect(self.getPathFolderMenu)
+        self.actionImport_Key.triggered.connect(self.getPathFileKeyMenu)
         #ENCRYPT TAB
         self.pushButtonEnCreate.clicked.connect(self.switchToGenerateTab)
         self.pushButtonEnFile.clicked.connect(lambda: self.getPathFile(self.lineEditEnSource))
@@ -1493,12 +1497,16 @@ class Ui_MainWindow(object):
         self.pushButtonEnKey.clicked.connect(lambda: self.getPathFile(self.lineEditEnKey, True))
         self.pushButtonEnOut.clicked.connect(lambda: self.getPathFolder(self.lineEditEnOut))
         self.pushButtonEnStart.clicked.connect(self.startEncrypt)
+        self.lineEditEnSource.textChanged.connect(self.outFolowSource)
+        self.checkBoxEnSource.stateChanged.connect(self.outFolowSource)
         #DECRYPT TAB
-        self.pushButtonDeFile.clicked.connect(lambda: self.getPathFile(self.lineEditDeSource))
+        self.pushButtonDeFile.clicked.connect(lambda: self.getPathFile(self.lineEditDeSource, False, False))
         self.pushButtonDeFolder.clicked.connect(lambda: self.getPathFolder(self.lineEditDeSource))
         self.pushButtonDeKey.clicked.connect(lambda: self.getPathFile(self.lineEditDeKey, True, False))
         self.pushButtonDeOut.clicked.connect(lambda: self.getPathFolder(self.lineEditDeOut))
         self.pushButtonDeStart.clicked.connect(self.startDecrypt)
+        self.lineEditDeSource.textChanged.connect(self.outFolowSource)
+        self.checkBoxDeSource.stateChanged.connect(self.outFolowSource)
         #GENERATOR TAB
             # Symmetric Keys
         self.pushButtonSymSave.clicked.connect(self.saveFileKeySym)
@@ -1511,9 +1519,17 @@ class Ui_MainWindow(object):
         self.pushButtonHashFile2.clicked.connect(lambda: self.getPathFile(self.lineEditHash2))
         self.pushButtonHashVerify.clicked.connect(self.verify)
 
+    def outFolowSource(self):
+        if(self.tabWidget.currentIndex() == 0):
+            if(self.checkBoxEnSource.isChecked()):
+                self.lineEditEnOut.setText(proccess.getpathFolder(self.lineEditEnSource.text()))
+        else:
+            if(self.checkBoxDeSource.isChecked()):
+                self.lineEditDeOut.setText(proccess.getpathFolder(self.lineEditDeSource.text())) 
+
     def switchToGenerateTab(self):
         self.tabWidget.setCurrentIndex(2)
-    
+
     def readMeMessage(self):
         QMessageBox.about(self.centralwidget,"READ ME!","Author: Nguyen Van Son.\nVersion: V1.09.\nDescription: The tool is used to encrypt files or folders according to basic standards such as RSA, AES, TripleDES. It is also a tool for checking files (hash).")
 
@@ -1535,11 +1551,15 @@ class Ui_MainWindow(object):
     def getPathFile(self, LineEdit, key=False, encrypt= True):
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.AnyFile)
-        if(key):
-            if(encrypt):
+        if(encrypt):
+            if(key):
                 dialog.setNameFilters(["Text files (*.txt)", "Public Key Files (*.pubk)"])
-            else:
+        else:
+            if(key):
                 dialog.setNameFilters(["Text files (*.txt)", "Private Key Files (*.prvk)"])
+            else:
+                dialog.setNameFilters(["Cipher files (*.cipher)"])
+
         if dialog.exec():
             pathfile = dialog.selectedFiles()
             LineEdit.setText(pathfile[0])
@@ -1551,14 +1571,156 @@ class Ui_MainWindow(object):
             pathfolder = dialog.selectedFiles()
             LineEdit.setText(pathfolder[0])
 
+    def getPathFileMenu(self):
+        currentTab = self.tabWidget.currentIndex()
+        if(currentTab != 0 and currentTab != 1):
+            QMessageBox.warning(self.centralwidget, "Warning:", "This function is only used for tab ENCRYPT and tab DECRYPT!")
+            return
+
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        if dialog.exec():
+            pathfile = dialog.selectedFiles()
+            # LineEdit.setText(pathfile[0])
+            if(currentTab == 0):
+                self.lineEditEnSource.setText(pathfile[0])
+            else:
+                self.lineEditDeSource.setText(pathfile[0])
+
+    def getPathFileKeyMenu(self):
+        currentTab = self.tabWidget.currentIndex()
+        if(currentTab != 0 and currentTab != 1):
+            QMessageBox.warning(self.centralwidget, "Warning:", "This function is only used for tab ENCRYPT and tab DECRYPT!")
+            return
+
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        if(currentTab == 0):
+            dialog.setNameFilters(["Text files (*.txt)", "Public Key Files (*.pubk)"])
+        else:
+            dialog.setNameFilters(["Text files (*.txt)", "Private Key Files (*.prvk)"])
+
+        if dialog.exec():
+            pathfile = dialog.selectedFiles()
+            # LineEdit.setText(pathfile[0])
+            if(currentTab ==0):
+                self.lineEditEnKey.setText(pathfile[0])
+            else:
+                self.lineEditDeKey.setText(pathfile[0])
+
+    def getPathFolderMenu(self):
+        currentTab = self.tabWidget.currentIndex()
+        if(currentTab != 0 and currentTab != 1):
+            QMessageBox.warning(self.centralwidget, "Warning:", "This function is only used for tab ENCRYPT and tab DECRYPT!")
+            return
+        
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.Directory)
+
+        if dialog.exec():
+            pathfile = dialog.selectedFiles()
+            # LineEdit.setText(pathfile[0])
+            if(currentTab ==0):
+                self.lineEditEnSource.setText(pathfile[0])
+                self.lineEditEnOut.setText(pathfile[0])
+            else:
+                self.lineEditDeSource.setText(pathfile[0])
+                self.lineEditDeOut.setText(pathfile[0])
     # ENCRYPT
     def startEncrypt(self):
-        print("Start")
+        # print(self.lineEditEnSource.text())
+        self.progressBarEn.setProperty("value", 0)
+        if(proccess.checkPathEncryptOrDecrypt(self.lineEditEnSource.text(), self.lineEditEnOut.text())):
+            key_ = self.lineEditEnKey.text()
+            if self.radioEnAES.isChecked():
+                if(proccess.checkKey(key_)):
+                    self.progressBarEn.setProperty("value", 10)
+                    proccess.encryptAES(self.lineEditEnSource.text(),key_,self.lineEditEnOut.text(),self.progressBarEn, self.checkBoxEnDelete.isChecked())
+                    self.progressBarEn.setProperty("value", 100)
+                    QMessageBox.information(self.centralwidget,"Notification","Encrypt Successfull!")
+                else:
+                    QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
+            elif self.radioEnRSA.isChecked():
+                if(proccess.checkKey(key_,True,True)):
+                    self.progressBarEn.setProperty("value", 10)
+                    try:
+                        proccess.encryptRSA(self.lineEditEnSource.text(),key_,self.lineEditEnOut.text(),self.progressBarEn, self.checkBoxEnDelete.isChecked())
+                        self.progressBarEn.setProperty("value", 100)
+                        QMessageBox.information(self.centralwidget,"Notification","Encrypt Successfull!")
+                    except ValueError:
+                        QMessageBox.critical(self.centralwidget,"Error:","RSA Algorithms: This size of currnet file is to big!")
+                else:
+                    QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
+            elif self.radioEn3DES.isChecked():
+                if(proccess.checkKey(key_)):
+                    self.progressBarEn.setProperty("value", 10)
+                    proccess.encrypt3DES(self.lineEditEnSource.text(),key_,self.lineEditEnOut.text(),self.progressBarEn, self.checkBoxEnDelete.isChecked())
+                    self.progressBarEn.setProperty("value", 100)
+                    QMessageBox.information(self.centralwidget,"Notification","Encrypt Successfull!")
+                else:
+                    QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
+            else:
+                QMessageBox.warning(self.centralwidget,"Warning:","You need to choose an algorithm!")
+        else:
+            QMessageBox.critical(self.centralwidget,"Error:","The paths are not correct!. Please check again!")
 
     # DECRYPT
     def startDecrypt(self):
-        print("Start")
+        self.progressBarDe.setProperty("value", 0)
+        if(proccess.checkPathEncryptOrDecrypt(self.lineEditDeSource.text(), self.lineEditDeOut.text())):
+            key_ = self.lineEditDeKey.text()
+            if self.radioButtonDeAES.isChecked():
+                if(proccess.checkKey(key_,False)):
+                    self.progressBarDe.setProperty("value", 10)
+                    check = proccess.decryptAES(self.lineEditDeSource.text(),key_,self.lineEditDeOut.text(),self.progressBarDe,self.checkBoxDeDelete.isChecked())
+                    self.progressBarDe.setProperty("value", 100)
+                    if(check):
+                        QMessageBox.information(self.centralwidget,"Notification","Decrypt Successfull!")
+                    else:
+                        QMessageBox.warning(self.centralwidget,"Warning:","Decrypt file success, hash value is incorrect. This is not origin file!")
+                else:
+                    QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
+            elif self.radioButtonDeRSA.isChecked():
+                if(proccess.checkKey(key_,False,True)):
+                    self.progressBarDe.setProperty("value", 10)
+                    try:
+                        check = proccess.decryptRSA(self.lineEditDeSource.text(),key_,self.lineEditDeOut.text(),self.progressBarDe,self.checkBoxDeDelete.isChecked())
+                        self.progressBarDe.setProperty("value", 100)
+                        if(check):
+                            QMessageBox.information(self.centralwidget,"Notification","Decrypt Successfull!")
+                        else:
+                            QMessageBox.warning(self.centralwidget,"Warning:","Decrypt file success, hash value is incorrect. This is not origin file!")
+                    except ValueError:
+                        QMessageBox.critical(self.centralwidget,"Error:","RSA Algorithms: This size of currnet file is to big!")
+                else:
+                    QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
+            elif self.radioButtonDe3DES.isChecked():
+                if(proccess.checkKey(key_,False)):
+                    self.progressBarDe.setProperty("value", 10)
+                    check = proccess.decrypt3DES(self.lineEditDeSource.text(),key_,self.lineEditDeOut.text(),self.progressBarDe,self.checkBoxDeDelete.isChecked())
+                    self.progressBarDe.setProperty("value", 100)
+                    if(check):
+                        QMessageBox.information(self.centralwidget,"Notification","Decrypt Successfull!")
+                    else:
+                        QMessageBox.warning(self.centralwidget,"Warning:","Decrypt file success, hash value is incorrect. This is not origin file!")
+                else:
+                    QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
+            else:
+                QMessageBox.warning(self.centralwidget,"Warning:","You need to choose an algorithm!")
+        else:
+            QMessageBox.critical(self.centralwidget,"Error:","The paths are not correct!. Please check again!")
 
+    # def decryptAESFile(self):
+        
+    # def decrypt3DESFile(self):
+
+    # def decryptRSAFile(self):
+
+    # def decryptAESFolder(self):
+
+    # def decrypt3DESFolder(self):
+
+    # def decryptRSAFolder(self):
     # GENERATOR
     def saveFileKeySym(self):
         key = self.lineEditSymKey.text()
@@ -1566,6 +1728,7 @@ class Ui_MainWindow(object):
             QMessageBox.warning(self.centralwidget, "Warning:", "Key hasn't been created!")
             return
         str = QFileDialog().getSaveFileName(self.centralwidget,"Save file: ","","Text files (*.txt)")[0]
+        # print(str)
         if(str != ''):
             proccess.saveFile(str,key)
             QMessageBox.information(self.centralwidget,"Notification","The key has been saved to the file!")
@@ -1584,7 +1747,13 @@ class Ui_MainWindow(object):
         dialog.setWindowTitle('Select Folder to save pair key: ')
         if dialog.exec():
             pathFolder = dialog.selectedFiles()[0]
-            proccess.generateAsymmetricKey(self.comboBoxAsym.currentText(),pathFolder)
+            # print(pathFolder + '\\')
+            try:
+                proccess.generateAsymmetricKey(self.comboBoxAsym.currentText(),pathFolder)
+                QMessageBox.information(self.centralwidget,"Notification:", "Generate public key and private key successful!")
+            except:
+                QMessageBox.critical(self.centralwidget,"Error:","An error occurred! Please check and try again!")
+
     # HASH
     def verify(self):
         path1 = self.lineEditHash1.text()
@@ -1601,7 +1770,7 @@ class Ui_MainWindow(object):
 
             if(hash1 == hash2):
                 cb = QtWidgets.QApplication.clipboard()
-                cb.clear(mode=cb.Clipboard )
+                cb.clear(mode=cb.Clipboard)
                 cb.setText(hash1, mode=cb.Clipboard)
                 QMessageBox.information(self.centralwidget,"Verify!","The Hash Codes Match!\nHash Code: " + hash2 + "\nThe hash code has been copied to the clipboard!")
             else:

@@ -614,7 +614,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="iconSize">
        <size>
@@ -839,7 +839,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
            <number>2</number>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Use select folder if you want to encrypt all files in the folder! &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Only encrypt files in current directory! Do not encrypt files in subfolders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note: &lt;/span&gt;With algorithm RSA, File must not be too large!(&amp;lt; 1MB). Use select folder if you want to encrypt all files in the folder! &lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Note:&lt;/span&gt; Only encrypt files in current directory! Do not encrypt files in subfolders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
