@@ -65,7 +65,10 @@ def saveFile(path, text):
     f.close()
 
 def getpathFolder(str):
-    return os.path.dirname(str)
+    if(os.path.isfile(str)):
+        return os.path.dirname(str)
+    else:
+        return str
 
 def generateSymmetricKey(length):
     allCharacter = string.ascii_letters + string.digits + string.punctuation
