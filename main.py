@@ -1425,7 +1425,7 @@ class Ui_MainWindow(object):
         self.pushButtonEnFolder.setText(_translate("MainWindow", "Select Folder"))
         self.label_7.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Note:</span> If you do not have a key, you can use the \'KEY GENERATOR\' to generate a new key!</p><p>The key is required for the <span style=\" font-weight:600;\">RSA</span> algorithm! (<span style=\" font-weight:600;\">RSA</span> uses asymmetric keys (Public Key: *.pubk), <span style=\" font-weight:600;\">AES</span> and <span style=\" font-weight:600;\">TripleDES</span> use symmetric keys!)</p></body></html>"))
         self.pushButtonEnCreate.setText(_translate("MainWindow", "CREATE KEY!"))
-        self.label_6.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Note: </span>With algorithm RSA, File must not be too large!(&lt; 1MB). Use select folder if you want to encrypt all files in the folder! </p><p><span style=\" font-weight:600;\">Note:</span> Only encrypt files in current directory! Do not encrypt files in subfolders.</p></body></html>"))
+        self.label_6.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Note: </span>With algorithm RSA, File must not be too large <span style=\" font-weight:600;\">Maximum = (KeySize/8 - 43)bytes</span>! Use select folder if you want to encrypt all files in the folder! </p><p><span style=\" font-weight:600;\">Note:</span> Only encrypt files in current directory! Do not encrypt files in subfolders.</p></body></html>"))
         self.radioEnAES.setText(_translate("MainWindow", "AES"))
         self.checkBoxEnSource.setText(_translate("MainWindow", "Use Source folder as Output folder!"))
         self.pushButtonEnKey.setText(_translate("MainWindow", "Import Key"))
@@ -1648,6 +1648,7 @@ class Ui_MainWindow(object):
                         self.progressBarEn.setProperty("value", 100)
                         QMessageBox.information(self.centralwidget,"Notification","Encrypt Successfull!")
                     except ValueError:
+                        self.progressBarEn.setProperty("value", 0)
                         QMessageBox.critical(self.centralwidget,"Error:","RSA Algorithms: This size of currnet file is to big!")
                 else:
                     QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
@@ -1691,6 +1692,7 @@ class Ui_MainWindow(object):
                         else:
                             QMessageBox.warning(self.centralwidget,"Warning:","Decrypt file success, hash value is incorrect. This is not origin file!")
                     except ValueError:
+                        self.progressBarDe.setProperty("value", 0)
                         QMessageBox.critical(self.centralwidget,"Error:","RSA Algorithms: This size of currnet file is to big!")
                 else:
                     QMessageBox.critical(self.centralwidget,"Error:","The file type of file Key does not match the algorithm selected!")
